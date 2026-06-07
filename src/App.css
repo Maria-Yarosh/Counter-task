@@ -8,6 +8,8 @@
   flex-direction: column;
   text-align: center;
   padding: 20px;
+  color: aqua;
+  font-size: 16px;
 }
 
 .counter {

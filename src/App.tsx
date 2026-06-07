@@ -1,48 +1,61 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 import "./App.css";
 import { Button } from "./Button";
+import { useDispatch, useSelector } from "react-redux";
+import { applySettings, incremented, reset, type RootState } from "./store";
 
 function App() {
-  const [count, setCount] = useState<number>(0);
-  const [maxValue, setMaxValue] = useState(() => {
+  const count = useSelector<RootState, number>((state) => state.value);
+  const maxValue = useSelector<RootState, number>((state) => state.maxValue);
+  // const startValue = useSelector<RootState, number>(
+  //   (state) => state.startValue,
+  // );
+
+  const [draftMaxValue, setDraftMaxValue] = useState(() => {
     const valueFromLocalStorage = localStorage.getItem("maxValue");
 
     return valueFromLocalStorage !== null ? Number(valueFromLocalStorage) : 0;
   });
-  const [startValue, setStartValue] = useState(() => {
+  const [draftStartValue, setDraftStartValue] = useState(() => {
     const valueFromLocalStorage = localStorage.getItem("startValue");
 
     return valueFromLocalStorage !== null ? Number(valueFromLocalStorage) : 0;
   });
 
-  useEffect(() => {
-    localStorage.setItem("maxValue", JSON.stringify(maxValue));
-  }, [maxValue]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    localStorage.setItem("startValue", JSON.stringify(startValue));
-  }, [startValue]);
+    localStorage.setItem("maxValue", JSON.stringify(draftMaxValue));
+  }, [draftMaxValue]);
+
+  useEffect(() => {
+    localStorage.setItem("startValue", JSON.stringify(draftStartValue));
+  }, [draftStartValue]);
 
   const handleIncreaseBtnClick = () => {
     if (count < maxValue) {
-      setCount(count + 1);
+      dispatch(incremented());
     }
   };
 
   const handleResetBtnClick = () => {
-    setCount(startValue);
+    dispatch(reset());
   };
 
   const handleMaxValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setMaxValue(+e.currentTarget.value);
+    //dispatch(setMaxValueAc(+e.currentTarget.value));
+    setDraftMaxValue(+e.currentTarget.value);
   };
 
   const handleStartValueChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setStartValue(+e.currentTarget.value);
+    //dispatch(setStartValueAc(+e.currentTarget.value));
+    setDraftStartValue(+e.currentTarget.value);
   };
 
   const handleSetClick = () => {
-    setCount(startValue);
+    dispatch(
+      applySettings({ maxValue: draftMaxValue, startValue: draftStartValue }),
+    );
   };
 
   return (
@@ -53,7 +66,7 @@ function App() {
             <p> max value: </p>
             <input
               type="number"
-              value={maxValue}
+              value={draftMaxValue}
               onChange={handleMaxValueChange}
             />
           </span>
@@ -61,7 +74,7 @@ function App() {
             <p>start value: </p>
             <input
               type="number"
-              value={startValue}
+              value={draftStartValue}
               onChange={handleStartValueChange}
             />
           </span>
